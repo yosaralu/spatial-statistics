@@ -1,0 +1,173 @@
+#selecionando correlaçoes maiores do 0.7
+> ifelse(abs(cor_envP.l)>0.7, "OUT", "-")  #selecionando correlaçoes maiores do 0.7
+     elev  MO    pH    K     Ca    Mg    SB    CTC   SLT   ARG   N     sol   P     H_Al  V     asp1  asp2  AF   
+elev "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+MO   "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "OUT" "-"   "OUT" "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+pH   "-"   "-"   "OUT" "-"   "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+K    "-"   "-"   "-"   "OUT" "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+Ca   "-"   "-"   "OUT" "OUT" "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+Mg   "-"   "-"   "OUT" "OUT" "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+SB   "-"   "-"   "OUT" "OUT" "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+CTC  "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "OUT" "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+SLT  "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+ARG  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+N    "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+sol  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+P    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"  
+H_Al "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+V    "-"   "-"   "OUT" "OUT" "OUT" "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+asp1 "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"  
+asp2 "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"  
+AF   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT"
+slop "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+     slop 
+elev "-"  
+MO   "-"  
+pH   "-"  
+K    "-"  
+Ca   "-"  
+Mg   "-"  
+SB   "-"  
+CTC  "-"  
+SLT  "-"  
+ARG  "-"  
+N    "-"  
+sol  "-"  
+P    "-"  
+H_Al "-"  
+V    "-"  
+asp1 "-"  
+asp2 "-"  
+AF   "-"  
+slop "OUT"
+
+
+
+# Com base na tabela de correla??es maiores ou iguais a 0.7, bolei diferentes combina??es de fatores ambientais, segundo a elimina?ao de
+# diferentes fatores... Essas combina?oes foram ent?o usadas na sele?ao de vari?veis ("forward.sel") usando a matriz de spp criada
+# com a ordena?ao PCoA como resposta. Essas foram as op?oes que bolei. Existem outras, mas acho que cobri as principais para 
+# esse conjunto de dados. Voc? precisar? atualizar isso para os dados de chuva ok?
+
+# OP?AO 1: MANTER MO + SB + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 2: MANTER elev + SB + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop
+# OP?AO 3: MANTER MO + SB + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop   
+# OP?AO 4: MANTER MO + pH + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 5: MANTER MO + pH + K + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 6: MANTER MO + pH + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 7: MANTER MO + Ca + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 8: MANTER MO + Ca + K + CTC + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 9: MANTER MO + Ca + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 10: MANTER MO + H_Al + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 11: MANTER MO + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 12: MANTER elev + SB + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop   
+# OP?AO 13: MANTER elev + pH + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 14: MANTER elev + pH + K + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 15: MANTER elev + pH + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop     
+# OP?AO 16: MANTER elev + Ca + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 17: MANTER elev + Ca + K + CTC + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 18: MANTER elev + Ca + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 19: MANTER elev + H_Al + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+# OP?AO 20: MANTER elev + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop
+
+
+
+
+# abaixo est?o os conjuntos de fatores ambientais lineares selecionados segundo cada op?ao de combina?ao de fatores montada 
+# com base nas correla??es. Cada conjunto de fatores selecionados ? seguido de seu respectivo R2 ao ser usado na dbRDA
+# Esse R2 serve de referencia para o conjunto final de fatores selecionado e que sera usado no modelo final. Eu escolhi
+# o conjunto de fatores que propiciou o maior R2. 
+
+# OP?AO 1: FICAM MO + sol + slop + SB + P + ARG + N    R2 = 15,79
+# OP?AO 2: FICAM elev + P + SB + sol + N + SLT    R2 = 16,32
+# OP?AO 3: FICAM MO + sol + slop + SB + P + ARG + N    R2 = 15,79
+# OP?AO 4: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01    
+# OP?AO 5: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01
+# OP?AO 6: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01 
+# OP?AO 7: FICAM MO + sol + slop + Ca + P + K + SLT + N   R2 = 19.62 
+# OP?AO 8: FICAM MO + sol + slop + Ca + P + K + SLT + N   R2 = 19.62 
+# OP?AO 9: FICAM MO + sol + slop + Ca + P + K + ARG + SLT  R2 = 19.51
+# OP?AO 10: FICAM MO + sol + slop + SLT + P + K + H_Al + N  R2 = 19.55
+# OP?AO 11: FICAM MO + sol + slop + SLT + P + K + H_Al + N  R2 = 19.55
+# OP?AO 12: FICAM elev + P + SB + sol + N + SLT  R2 = 16,32
+# OP?AO 13: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+# OP?AO 14: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+# OP?AO 15: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+# OP?AO 16: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+# OP?AO 17: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+# OP?AO 18: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+# OP?AO 19: FICAM elev + P + H_Al + K + N + sol + SLT  R2 = 19.93
+# OP?AO 20: FICAM elev + P + H_Al + K + N + sol + SLT  R2 = 19.93
+
+
+
+# OP?AO 1: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`   
+# OP?AO 2: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`              
+# OP?AO 3: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`         
+# OP?AO 4: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`
+# OP?AO 5: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+# OP?AO 6: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `V^2` + `asp1^2` + `AF^2` + `slop^2`
+# OP?AO 7: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+# OP?AO 8: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+# OP?AO 9: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+# OP?AO 10: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `V^2` + `asp2^2` + `AF^2` + `slop^2`
+
+
+
+> cor_envP.q<-cor(envP.q, envP.q)
+> ifelse(abs(cor_envP.q)>0.7, "OUT", "-")
+       elev^2 MO^2  pH^2  K^2   Ca^2  Mg^2  SB^2  CTC^2 SLT^2 ARG^2 N^2   sol^2 P^2   H_Al^2 V^2   asp1^2 asp2^2
+elev^2 "OUT"  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+MO^2   "-"    "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT"  "-"   "-"    "-"   
+pH^2   "-"    "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "OUT" "-"    "-"   
+K^2    "-"    "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+Ca^2   "-"    "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"    "OUT" "-"    "-"   
+Mg^2   "-"    "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+SB^2   "-"    "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"    "OUT" "-"    "-"   
+CTC^2  "-"    "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT"  "-"   "-"    "-"   
+SLT^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+ARG^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+N^2    "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"    "-"   "-"    "-"   
+sol^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"    "-"   "-"    "-"   
+P^2    "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"    "-"   "-"    "-"   
+H_Al^2 "-"    "OUT" "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "OUT"  "-"   "-"    "-"   
+V^2    "-"    "-"   "OUT" "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"    "OUT" "-"    "-"   
+asp1^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "OUT"  "OUT" 
+asp2^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "OUT"  "OUT" 
+AF^2   "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+slop^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"    "-"   
+       AF^2  slop^2
+elev^2 "-"   "-"   
+MO^2   "-"   "-"   
+pH^2   "-"   "-"   
+K^2    "-"   "-"   
+Ca^2   "-"   "-"   
+Mg^2   "-"   "-"   
+SB^2   "-"   "-"   
+CTC^2  "-"   "-"   
+SLT^2  "-"   "-"   
+ARG^2  "-"   "-"   
+N^2    "-"   "-"   
+sol^2  "-"   "-"   
+P^2    "-"   "-"   
+H_Al^2 "-"   "-"   
+V^2    "-"   "-"   
+asp1^2 "-"   "-"   
+asp2^2 "-"   "-"   
+AF^2   "OUT" "-"   
+slop^2 "-"   "OUT" 
+
+# abaixo segue o conjunto de fatores ambientais quadraticos que foi selecionado em cada uma das op?oes
+# de combina?ao dos fatores segundo as correla??es e os respectivos R2 das db-RDA usado esses fatores.
+# Para os fatores ambientais quadr?ticos, o conjunto final de fatores selecionado foi sempre o mesmo. 
+
+# OP?AO 1: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 2: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 3: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 4: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 5: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 6: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 7: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 8: FICAM `elev^2` + `N^2` + `AF^2`   R2= 14.03
+# OP?AO 9: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+# OP?AO 10: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+

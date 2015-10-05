@@ -1,0 +1,966 @@
+SECA
+
+
+
+
+RsquaredAdj
+[1] 0.199301
+
+RsquaredAdj q
+[1] 0.1403057
+
+> anova(spa.rda)    
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ X + Y, data = as.data.frame(spa_cent), distance = "horn")
+         Df Variance      F Pr(>F)    
+Model     2   5.2009 9.3922  0.001 ***
+Residual 47  13.0130                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova.cca(PCNM.rda)    # aqui checamos se o modelo é significativo. Como é, damos continuidade a rotina.
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ V1 + V2, data = PCNMs, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model     2   3.5271 5.6437  0.001 ***
+Residual 47  14.6867                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+
+>>> Partition of variation in RDA
+
+Call: varpart(Y = spp.pcoa$points, X = envP_FIM, spa_cent, PCNM_FIM)
+
+Explanatory tables:
+X1:  envP_FIM
+X2:  spa_cent
+X3:  PCNM_FIM 
+
+No. of explanatory tables: 3 
+Total variation (SS): 85.88 
+            Variance: 1.7526 
+No. of observations: 50 
+
+Partition table:
+                      Df R.square Adj.R.square Testable
+[a+d+f+g] = X1        11  0.43287      0.26870     TRUE
+[b+d+e+g] = X2         2  0.20628      0.17251     TRUE
+[c+e+f+g] = X3         1  0.12123      0.10292     TRUE
+[a+b+d+e+f+g] = X1+X2 13  0.53214      0.36319     TRUE
+[a+c+d+e+f+g] = X1+X3 12  0.48514      0.31816     TRUE
+[b+c+d+e+f+g] = X2+X3  3  0.23080      0.18064     TRUE
+[a+b+c+d+e+f+g] = All 14  0.55079      0.37110     TRUE
+Individual fractions                                   
+[a] = X1 | X2+X3      11               0.19046     TRUE
+[b] = X2 | X1+X3       2               0.05294     TRUE
+[c] = X3 | X1+X2       1               0.00791     TRUE
+[d]                    0               0.02478    FALSE
+[e]                    0               0.04155    FALSE
+[f]                    0               0.00022    FALSE
+[g]                    0               0.05324    FALSE
+[h] = Residuals                        0.62890    FALSE
+Controlling 1 table X                                  
+[a+d] = X1 | X3       11               0.21524     TRUE
+[a+f] = X1 | X2       11               0.19068     TRUE
+[b+d] = X2 | X3        2               0.07771     TRUE
+[b+e] = X2 | X1        2               0.09449     TRUE
+[c+e] = X3 | X1        1               0.04946     TRUE
+[c+f] = X3 | X2        1               0.00813     TRUE
+---
+Use function 'rda' to test significance of fractions of interest
+
+
+> setwd("C:/Users/Sara/Desktop/R/R/Doctorado/First")
+> 
+> #setwd("C:\\Users\\user\\Documents\\PROJETOS_MANUSCRITOS\\Palmeiras_RJ\\Analise_atual")  # Indica a pasta onde estão os arquivos das analises neste script 
+> 
+> 
+> spp<-read.csv("densi.csv", header=T, sep=";", dec = ",", row.names=1)   # chamada dos dados referentes as spp da comunidade
+> 
+> library(vegan)     # iniciação/chamada do pacote vegan
+> 
+> spp.t<-decostand(spp, "total")    # padronização dos dados da comunidade segundo a soma dos valores registrados na unidade amostral
+> 
+> spp.bray<-vegdist(spp.t, "horn")  # calculo da matriz de distancias (usei a medida de morisita-horn/também rodei com bray-curtis mas obtive uma % de explicaçao um pouco menor)
+>                                   # a mesma medida de distancia deve ser usada ao avaliar os dados da seca e da chuva ok?? Não sei se sabe, mas para ver como uma dada função
+>                                   # funciona é so você colocar uma interrogação antes da funçao, selecionar a interrogaçao junto com a funçao e apertar crtl+R ok?
+> 
+> spp.pcoa<-cmdscale(spp.bray, k=nrow(spp)-1, eig=TRUE, add=TRUE)   # Criaçao de matriz resposta da comunidade segundo a ordenaçao PCoA. Para ver o que significa cada argumento, 
+>                                                                   # da uma olhada no help da funçao cmdscale. AO usarmos a matriz da ordenaçao para representar a comunidade
+>                                                                   # estamos rodadndo uma distance-based RDA e não a RDA mais clássica ok? O principal beneficio dessa abordagem, no caso 
+>                                                                   # desses nossos dados, é que podemos usar variáveis (spp) com baixa ocorrência. A RDA clássica depende do registro                                                                   # 
+>                                                                   # de pelo menos cinco pontos para as variáveis... A db-RDA também permite usar qualquer medida de distancia para 
+>                                                                   # modelar os dados, enquanto a RDA classica é "fechada" nesse aspecto (salvo algumas transformações 
+>                                                                   # (ver Legendre & Gallagher 2001 ou Gallagher & Legendre 2001 - não tenho certeza da ordem dos autores...).
+> 
+> 
+> env.1<-read.csv("topo.csv", header=T, sep=";", dec = ",", row.names=1)   # chamada/emtrada dos dados ambientais (parte referente a topografia - que serve tanto para chuva quanto para a seca)
+> trf.asp<-cbind(sin(env.1[,2]), cos(env.1[,2]))   # transformaçao do fator aspecto, dentro dos dados de topografia, pelo seu seno e coseno (1 fator viram dois mesmo). Nos trabalhos 
+>                                                  # da Punchi-Manage et al. (2013, 2014) eles citam esta transformaçao para fatores que sejam de dados circulares, como no caso dos 360 graus
+>                                                  # usados para registrar o fator aspecto...
+> 
+> colnames(trf.asp)<-c("asp1", "asp2")    # nomeação  das colunas do obejto "trf.asp"
+> 
+> env.2<-read.csv("solo_sc.csv", header= T, sep= ";", dec= ",", row.names=1) # chamada/entrada dos dados ambientais (parte referente a quimica do solo no periodo de seca)
+> 
+> env<-cbind(env.2, env.1, trf.asp)   # criaçao de objeto contendo todas os fatores ambientais usando a funçao "cbind"
+> 
+> library(stats)    # iniciação/chamada do pacote stats, que contem a funçao "poly"
+> 
+> envP<-cbind(poly(env$elev,2),    # criaçao de objeto/matriz com todos os fatores ambientais e seus respectivos valores quadráticos (ao quadrado)
++             poly(env$MO,2),      # segundo a funçao "poly". Essa funçao já transforma e padroniza os fatores ambientais, então não é preciso qualquer
++             poly(env$pH,2),      # outra trasnformação desses dados. A funçao poly calcula os valores quadráticos e garante que eles sejam ortogonais entre
++             poly(env$K,2),       # si. Se você calcular direto o valor quadrático, os fatores terão uma correlação de 1...Por isso essa função é tão legal, ela 
++             poly(env$Ca,2),      # padroniza os dados e garante que não sejam lineares.
++             poly(env$Mg,2),
++             poly(env$SB,2),
++             poly(env$CTC,2),
++             poly(env$AG,2),
++             poly(env$SLT,2),
++             poly(env$ARG,2),
++             poly(env$N,2),
++             poly(env$sol,2),
++             poly(env$P,2),
++             poly(env$H_Al,2),
++             poly(env$V,2),
++             poly(env$asp1,2),
++             poly(env$asp2,2),
++             poly(env$AF,2),
++             poly(env$slop,2))
+> 
+> colnames(envP)<-c("elev", "elev^2", "MO", "MO^2", "pH", "pH^2", "K", "K^2", "Ca", "Ca^2",     # nomeação das colunas do objeto criado com auxílio da funçao "poly". Se não nomear
++                   "Mg", "Mg^2", "SB", "SB^2", "CTC", "CTC^2", "AG", "AG^2", "SLT", "SLT^2",   # terá problemas depois porque as colunas ficam com "nomes" 1, 2, 1, 2, ...
++                   "ARG", "ARG^2", "N", "N^2", "sol", "sol^2", "P", "P^2", "H_Al", "H_Al^2", "V", "V^2"
++                  , "asp1", "asp1^2", "asp2", "asp2^2", "AF", "AF^2", "slop", "slop^2")  
+> 
+> rownames(envP)<-rownames(env)   # nomeaçao das linhas do objeto "envP" de acordo com as linhas do objeto "env"
+> 
+> envP.l<-subset(envP, select = - c (`elev^2`, `MO^2`, `pH^2`, `K^2`, `Ca^2`, `Mg^2`, `SB^2`, `CTC^2`, `AG^2`, `SLT^2`,       # Dissociaçao das informaçoes/fatores ambientais lineares daqueles
++                                    `ARG^2`, `N^2`, `sol^2`, `P^2`, `H_Al^2`, `V^2`, `asp1^2`, `asp2^2`, `AF^2`, `slop^2`))  # quadráticos. Aqui usei a funçao subset para selecionar uma parte     
+>                                                                                                                             # das colunas da matriz de dados ambientais "envP", criando o obejto
+>                                                                                                                             # "envP.l". 
+> 
+> envP.q<-subset(envP, select = - c (elev, MO, pH, K, Ca, Mg, SB, CTC, AG, SLT, ARG, N, sol, P, H_Al, V, asp1, asp2, AF, slop))   # Dissociaçao  das informaçoes/fatores ambientais quadraticos daqueles
+>                                                                                                                                 # lineares. A razão pela qual separei essas informaçoes foi para 
+>                                                                                                                                 # executar a seleçao de fatores ambienatias com base em correlacao. 
+>                                                                                                                                 # ou seja, para diminuir a colinearidade. Fiz isso porque sao muitos fatores
+>                                                                                                                                 # e ficava melhor para visualizar as correlações e para rodar a função "forward.sel",
+>                                                                                                                                 # que seleciona os fatores a serem usados na análise final (depois de lidar
+>                                                                                                                                 # com a multicolinearidade...). Repara que se eu não separasse seria uma matriz
+>                                                                                                                                 # com 40 fatores.                                                                                                                    # 
+> 
+> 
+> cor_envP.l<-cor(envP.l, envP.l)      # Criação de objeto com correlaçao entre fatores ambientais
+> 
+> ifelse(abs(cor_envP.l)>0.7, "OUT", "-")  # solicitaçao de matriz na tela de operações do R, respondendo quais correlaçoes sao maiores do 0.7
+     elev  MO    pH    K     Ca    Mg    SB    CTC   AG    SLT   ARG   N     sol   P    
+elev "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+MO   "OUT" "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+pH   "-"   "-"   "OUT" "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+K    "-"   "-"   "-"   "OUT" "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+Ca   "-"   "-"   "OUT" "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+Mg   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+SB   "-"   "-"   "OUT" "OUT" "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+CTC  "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+AG   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"  
+SLT  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+ARG  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"  
+N    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"  
+sol  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"  
+P    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT"
+H_Al "-"   "-"   "OUT" "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+V    "-"   "-"   "OUT" "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+asp1 "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+asp2 "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+AF   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+slop "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+     H_Al  V     asp1  asp2  AF    slop 
+elev "-"   "-"   "-"   "-"   "-"   "-"  
+MO   "-"   "-"   "-"   "-"   "-"   "-"  
+pH   "OUT" "OUT" "-"   "-"   "-"   "-"  
+K    "-"   "-"   "-"   "-"   "-"   "-"  
+Ca   "OUT" "OUT" "-"   "-"   "-"   "-"  
+Mg   "-"   "-"   "-"   "-"   "-"   "-"  
+SB   "OUT" "OUT" "-"   "-"   "-"   "-"  
+CTC  "-"   "-"   "-"   "-"   "-"   "-"  
+AG   "-"   "-"   "-"   "-"   "-"   "-"  
+SLT  "-"   "-"   "-"   "-"   "-"   "-"  
+ARG  "-"   "-"   "-"   "-"   "-"   "-"  
+N    "-"   "-"   "-"   "-"   "-"   "-"  
+sol  "-"   "-"   "-"   "-"   "-"   "-"  
+P    "-"   "-"   "-"   "-"   "-"   "-"  
+H_Al "OUT" "OUT" "-"   "-"   "-"   "-"  
+V    "OUT" "OUT" "-"   "-"   "-"   "-"  
+asp1 "-"   "-"   "OUT" "-"   "-"   "-"  
+asp2 "-"   "-"   "-"   "OUT" "-"   "-"  
+AF   "-"   "-"   "-"   "-"   "OUT" "-"  
+slop "-"   "-"   "-"   "-"   "-"   "OUT"
+> 
+> # Com base na tabela de correlações maiores ou iguais a 0.7, bolei diferentes combinações de fatores ambientais, segundo a eliminaçao de
+> # diferentes fatores... Essas combinaçoes foram então usadas na seleçao de variáveis ("forward.sel") usando a matriz de spp criada
+> # com a ordenaçao PCoA como resposta. Essas foram as opçoes que bolei. Existem outras, mas acho que cobri as principais para 
+> # esse conjunto de dados. Você precisará atualizar isso para os dados de chuva ok?
+> 
+> # OPÇAO 1: MANTER MO + SB + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 2: MANTER elev + SB + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop
+> # OPÇAO 3: MANTER MO + SB + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop   
+> # OPÇAO 4: MANTER MO + pH + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 5: MANTER MO + pH + K + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 6: MANTER MO + pH + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 7: MANTER MO + Ca + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 8: MANTER MO + Ca + K + CTC + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 9: MANTER MO + Ca + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 10: MANTER MO + H_Al + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 11: MANTER MO + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 12: MANTER elev + SB + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop   
+> # OPÇAO 13: MANTER elev + pH + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 14: MANTER elev + pH + K + Mg + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 15: MANTER elev + pH + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop     
+> # OPÇAO 16: MANTER elev + Ca + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 17: MANTER elev + Ca + K + CTC + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 18: MANTER elev + Ca + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 19: MANTER elev + H_Al + K + CTC + SLT + ARG + N + sol + P + asp1 + asp2 + AF + slop  
+> # OPÇAO 20: MANTER elev + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop
+> 
+> #######################------------------------------
+> #RDA DE TUDO pega somente todos os dados das opoções lineares e quadraticas escolhidas, sem a segunda seleção.
+> #DEIXA PARA O FINAL DA MELHOR OPCAO DA LINEAR COM A MELHOR DOS QUADRATICOS#RsquareAdj(rda(spp.pcoa$points ~  elev + H_Al + K + Mg + SLT + AG + N +                                             # Criaçao de objeto contendo valor de referencia
+>  #                sol + P + asp1 + asp2 + AF + slop, data= as.data.frame(envP.l)))$adj.r.squared    # como threshold para execuçao da seleçao de fatores.
+> #plot(rda(spp.pcoa$points ~  elev + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop +
+>   #                    `elev^2` + `MO^2` + `pH^2` + `K^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + 
+>    #                   `V^2` + `asp2^2` + `AF^2` + `slop^2`, data= as.data.frame(envP)))
+> 
+> #summary(rda(spp.pcoa$points ~  elev + H_Al + K + Mg + SLT + AG + N + sol + P + asp1 + asp2 + AF + slop +
+>     #       `elev^2` + `MO^2` + `pH^2` + `K^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + 
+>      #      `V^2` + `asp2^2` + `AF^2` + `slop^2`, data= as.data.frame(envP)))
+> #######################----------------------------
+> 
+> 
+> 
+> calib.adj.l<-RsquareAdj(rda(spp.pcoa$points ~  elev + H_Al + K + Mg + SLT + AG + N +                                             # Criaçao de objeto contendo valor de referencia
++                                                sol + P + asp1 + asp2 + AF + slop, data= as.data.frame(envP.l)))$adj.r.squared    # como threshold para execuçao da seleçao de fatores.
+>                                                                                                                                  # A seleçao de fatores com a funçao "forward.sel" deve
+>                                                                                                                                  # ser usada com dois critérios de "stop". Um é o valor 
+>                                                                                                                                  # de alpha (0.05 geralmente, mas eu usei um menos restritivo, de 0.10) 
+>                                                                                                                                  # e o outro é o R2 da rda 
+>                                                                                                                                  # usando todos os fatores ambientais (depois da eliminaçao)
+>                                                                                                                                  # segundo está aqui nessa linha (dupla) de código.
+> 
+> envP.l2<-subset(envP.l, select= - c (MO, pH, CTC, SB, AG, Ca, V))    # Aqui estou criando um objeto com o conjunto de fatores ambientais que serão submetidos
+>                                                                      # a seleçao de fatores ambientais a seguir (segundo uma das opçoes de combinação de fatores
+>                                                                      # com base nas correlaçoes). Novamente usando a funçao "subset" para criar um subconjunto de fatores
+>                                                                      # daqueles existentes na matriz de fatores ambientais lineares. Isso precisa ser feito porque 
+>                                                                      # a função "forward.sel" não roda como a regressao, onde especificamos os fatores que queremos
+>                                                                      # usar. Ela pede que forneça um objeto contendo todos os fatores... e por isso ele precisa ser criado.
+> 
+> library(packfor)    # chamada/abertura do pacote "packfor"
+> 
+> forward.sel(spp.pcoa$points, envP.l2,  adjR2thresh=calib.adj.l, alpha = 0.05)   # execuçao da seleçao de variaveis para o conjunto de dados ambientais lineares
+Testing variable 1
+Testing variable 2
+Testing variable 3
+Testing variable 4
+Testing variable 5
+Testing variable 6
+Testing variable 7
+Procedure stopped (adjR2thresh criteria) adjR2cum = 0.199301 with 7 variables (superior to 0.192575)
+  variables order         R2      R2Cum   AdjR2Cum        F  pval
+1      elev     1 0.07880903 0.07880903 0.05961755 4.106460 0.001
+2         P     8 0.04670830 0.12551733 0.08830530 2.510387 0.008
+3      H_Al     9 0.04395401 0.16947134 0.11530643 2.434455 0.006
+4         K     2 0.04539891 0.21487025 0.14508094 2.602055 0.007
+5         N     6 0.03641084 0.25128110 0.16619940 2.139758 0.022
+6       sol     7 0.03271512 0.28399622 0.18408871 1.964724 0.032
+7       SLT     4 0.02969034 0.31368656 0.19930099 1.816946 0.036
+>                                                                                 # segundo a opção de combinaçao de fatores escolhida. 
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ elev + P + H_Al + K + N + sol + SLT, data= as.data.frame(envP.l)))$adj.r.squared   # determinação do R2 segundo o conjunto de fatores ambientais lineares
+[1] 0.199301
+>                                                                                                                     # selecionados na seleção. 
+> 
+> # abaixo estão os conjuntos de fatores ambientais lineares selecionados segundo cada opçao de combinaçao de fatores montada 
+> # com base nas correlações. Cada conjunto de fatores selecionados é seguido de seu respectivo R2 ao ser usado na dbRDA
+> # Esse R2 serve de referencia para o conjunto final de fatores selecionado e que sera usado no modelo final. Eu escolhi
+> # o conjunto de fatores que propiciou o maior R2. 
+> 
+> # OPÇAO 1: FICAM MO + sol + slop + SB + P + ARG + N    R2 = 15,79
+> # OPÇAO 2: FICAM elev + P + SB + sol + N + SLT    R2 = 16,32
+> # OPÇAO 3: FICAM MO + sol + slop + SB + P + ARG + N    R2 = 15,79
+> # OPÇAO 4: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01    
+> # OPÇAO 5: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01
+> # OPÇAO 6: FICAM MO + sol + slop + SLT + P + pH + K + N   R2 = 19.01 
+> # OPÇAO 7: FICAM MO + sol + slop + Ca + P + K + SLT + N   R2 = 19.62 
+> # OPÇAO 8: FICAM MO + sol + slop + Ca + P + K + SLT + N   R2 = 19.62 
+> # OPÇAO 9: FICAM MO + sol + slop + Ca + P + K + ARG + SLT  R2 = 19.51
+> # OPÇAO 10: FICAM MO + sol + slop + SLT + P + K + H_Al + N  R2 = 19.55
+> # OPÇAO 11: FICAM MO + sol + slop + SLT + P + K + H_Al + N  R2 = 19.55
+> # OPÇAO 12: FICAM elev + P + SB + sol + N + SLT  R2 = 16,32
+> # OPÇAO 13: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+> # OPÇAO 14: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+> # OPÇAO 15: FICAM elev + P + sol + pH + K + N + SLT  R2 = 17.91
+> # OPÇAO 16: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+> # OPÇAO 17: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+> # OPÇAO 18: FICAM elev + P + Ca + K + sol + N + SLT  R2 = 19.66
+> # OPÇAO 19: FICAM elev + P + H_Al + K + N + sol + SLT  R2 = 19.93
+> # OPÇAO 20: FICAM elev + P + H_Al + K + N + sol + SLT  R2 = 19.93
+> 
+> 
+> 
+> 
+> cor_envP.q<-cor(envP.q, envP.q)
+> ifelse(abs(cor_envP.q)>0.7, "OUT", "-")
+       elev^2 MO^2  pH^2  K^2   Ca^2  Mg^2  SB^2  CTC^2 AG^2  SLT^2 ARG^2 N^2   sol^2
+elev^2 "OUT"  "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+MO^2   "-"    "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+pH^2   "-"    "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+K^2    "-"    "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+Ca^2   "-"    "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+Mg^2   "-"    "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"  
+SB^2   "-"    "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+CTC^2  "-"    "-"   "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"  
+AG^2   "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"  
+SLT^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"  
+ARG^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"  
+N^2    "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"  
+sol^2  "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT"
+P^2    "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+H_Al^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+V^2    "-"    "-"   "-"   "-"   "OUT" "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"  
+asp1^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+asp2^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+AF^2   "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+slop^2 "-"    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"  
+       P^2   H_Al^2 V^2   asp1^2 asp2^2 AF^2  slop^2
+elev^2 "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+MO^2   "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+pH^2   "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+K^2    "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+Ca^2   "-"   "-"    "OUT" "-"    "-"    "-"   "-"   
+Mg^2   "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+SB^2   "-"   "-"    "OUT" "-"    "-"    "-"   "-"   
+CTC^2  "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+AG^2   "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+SLT^2  "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+ARG^2  "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+N^2    "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+sol^2  "-"   "-"    "-"   "-"    "-"    "-"   "-"   
+P^2    "OUT" "-"    "-"   "-"    "-"    "-"   "-"   
+H_Al^2 "-"   "OUT"  "-"   "-"    "-"    "-"   "-"   
+V^2    "-"   "-"    "OUT" "-"    "-"    "-"   "-"   
+asp1^2 "-"   "-"    "-"   "OUT"  "OUT"  "-"   "-"   
+asp2^2 "-"   "-"    "-"   "OUT"  "OUT"  "-"   "-"   
+AF^2   "-"   "-"    "-"   "-"    "-"    "OUT" "-"   
+slop^2 "-"   "-"    "-"   "-"    "-"    "-"   "OUT" 
+> # OPÇAO 1: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`   
+> # OPÇAO 2: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`              
+> # OPÇAO 3: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`         
+> # OPÇAO 4: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp1^2` + `AF^2` + `slop^2`
+> # OPÇAO 5: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+> # OPÇAO 6: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `V^2` + `asp1^2` + `AF^2` + `slop^2`
+> # OPÇAO 7: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+> # OPÇAO 8: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `SB^2` + `Mg^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+> # OPÇAO 9: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `Ca^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `asp2^2` + `AF^2` + `slop^2`
+> # OPÇAO 10: MANTER `elev^2` + `MO^2` + `pH^2` + `K^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + `V^2` + `asp2^2` + `AF^2` + `slop^2`
+> 
+> 
+> calib.adj.q<-RsquareAdj(rda(spp.pcoa$points ~ `elev^2` + `MO^2` + `pH^2` + `K^2` + `CTC^2` + `AG^2` + `SLT^2` + `ARG^2` + `N^2` + `sol^2` + `P^2` + `H_Al^2` + 
++                                               `V^2` + `asp2^2` + `AF^2` + `slop^2`, data= as.data.frame(envP.q)))$adj.r.squared    # Aqui eu aplico de novo o procedimento para a seleçao de variaveis ambientais
+>                                                                                                                                    # porém agora é os fatores ambientais quadráticos... Sendo assim, essa linha de comando
+>                                                                                                                                    # cria o criterio de corte (threshold) do R2 com a db-RDA usando todos os fatores
+>                                                                                                                                    # ambientais quadraticos apos a eliminaçao com base nas correlaçoes.                            
+> 
+> envP.q2<-subset(envP.q, select= - c (`SB^2`, `Ca^2`, `Mg^2`, `asp1^2`))   # aqui é a criaçao da matriz segundo o conjunto de fatores ambientais que serão submetidos
+>                                                                           # a seleçao de fatores ambientais a seguir (segundo uma das opçoes de combinação de fatores
+>                                                                           # ambientais quadráticos com base nas correlaçoes). 
+> 
+> forward.sel(spp.pcoa$points, envP.q2,  adjR2thresh= 0.2, alpha = 0.1)     # aqui está a seleção de fatores ambientais quadraticos com o threshold criado na linha 
+Testing variable 1
+Testing variable 2
+Testing variable 3
+Testing variable 4
+Testing variable 5
+Testing variable 6
+Procedure stopped (alpha criteria): pvalue for variable 6 is 0.109000 (superior to 0.100000)
+  variables order         R2     R2Cum   AdjR2Cum        F  pval
+1    elev^2     1 0.10609172 0.1060917 0.08746863 5.696784 0.001
+2       N^2     9 0.03966643 0.1457582 0.10940743 2.182429 0.003
+3      AF^2    15 0.03444778 0.1802059 0.12674110 1.932922 0.032
+4       K^2     4 0.03027893 0.2104849 0.14030573 1.725808 0.045
+5     ARG^2     8 0.03087142 0.2413563 0.15514676 1.790488 0.042
+>                                                                           # de código acima e um alpha menos restritivo, de 0.10. 
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ `elev^2` + `N^2` + `AF^2` + `K^2` , data= as.data.frame(envP.q)))$adj.r.squared    # aqui é calculado o R2 final segundo o conjunto de fatores
+[1] 0.1403057
+>                                                                                                                     # ambientais quadráticos selecionado
+> 
+> # abaixo segue o conjunto de fatores ambientais quadraticos que foi selecionado em cada uma das opçoes
+> # de combinaçao dos fatores segundo as correlações e os respectivos R2 das db-RDA usado esses fatores.
+> # Para os fatores ambientais quadráticos, o conjunto final de fatores selecionado foi sempre o mesmo. 
+> 
+> # OPÇAO 1: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 2: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 3: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 4: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 5: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 6: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 7: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 8: FICAM `elev^2` + `N^2` + `AF^2`   R2= 14.03
+> # OPÇAO 9: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> # OPÇAO 10: FICAM `elev^2` + `N^2` + `AF^2` + `K^2`   R2= 14.03
+> 
+> 
+> envP_FIM<-cbind(envP.l2[,1], envP.l2[,8:9], envP.l2[,2], envP.l2[,6:7], envP.l2[,4], envP.q2[,1], envP.q2[,9], envP.q2[,15], envP.q2[,4])   # aqui está a construçao, com auxílio da função
+>                                                                                                                                             # "cbind" da matriz de fatores ambientais (quadráticos
+>                                                                                                                                             # e lineares) final a ser usada nos modelos finais e
+>                                                                                                                                             # e na partiçao de variancia.
+>                                                                                                                                       
+> colnames(envP_FIM)<-c("Elev", "P", "H_Al", "K", "N", "Sol", "Silt", "Elev^2", "N^2", "AF^2", "K^2")   # Aqui estou nomeando as colunas da matriz final de fatores ambientais construida na linha de comando acima
+> 
+> cor_envP_FIM<-cor(envP_FIM, envP_FIM)     # conferindo se por acaso existe ainda alguma correlaçao entre os fatores ambientais lineares e os quadráticos, visto que estes foram 
+> ifelse(abs(cor_envP_FIM)>0.7, "OUT", "-") # selecionados separadamente. Nada está correlacionado. Beleza!
+       Elev  P     H_Al  K     N     Sol   Silt  Elev^2 N^2   AF^2  K^2  
+Elev   "OUT" "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"   "-"  
+P      "-"   "OUT" "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"   "-"  
+H_Al   "-"   "-"   "OUT" "-"   "-"   "-"   "-"   "-"    "-"   "-"   "-"  
+K      "-"   "-"   "-"   "OUT" "-"   "-"   "-"   "-"    "-"   "-"   "-"  
+N      "-"   "-"   "-"   "-"   "OUT" "-"   "-"   "-"    "-"   "-"   "-"  
+Sol    "-"   "-"   "-"   "-"   "-"   "OUT" "-"   "-"    "-"   "-"   "-"  
+Silt   "-"   "-"   "-"   "-"   "-"   "-"   "OUT" "-"    "-"   "-"   "-"  
+Elev^2 "-"   "-"   "-"   "-"   "-"   "-"   "-"   "OUT"  "-"   "-"   "-"  
+N^2    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "OUT" "-"   "-"  
+AF^2   "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "OUT" "-"  
+K^2    "-"   "-"   "-"   "-"   "-"   "-"   "-"   "-"    "-"   "-"   "OUT"
+> 
+> 
+> 
+> spa<-read.csv("space.csv", header=T, sep=";", dec = ",", row.names=1)   # Aqui entramos com os dados espaciais brutos (latitude e longitude, em graus decimais, que é como está na planilha base)
+> 
+> spa_cent<-scale(spa, scale=F, center=TRUE)                              # Antes de começar a trabalhar os dados espaciais/geograficos deve-se centra-los, como é feito nesta linha de comando         
+> 
+> spa.rda<-capscale(spp.t ~ ., distance="horn", data = as.data.frame(spa_cent))  # Aqui eu crio um objeto que é uma db_rda (com funçao capscale) para testar se o modelo é significativo
+> 
+> anova(spa.rda)    # aqui eu testo o modelo de db-RDA criado na linha de comando acima. Se não for significativo, pode parar por aqui e não precisa incluir os fatores espaciais lineares
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ X + Y, data = as.data.frame(spa_cent), distance = "horn")
+         Df Variance      F Pr(>F)    
+Model     2   5.2009 9.3922  0.001 ***
+Residual 47  13.0130                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+>                   # (também conhecidos como latitude e longitude...). Como aqui é significativo, damos continuidade a rotina. 
+> 
+> spa_R2a<-RsquareAdj(rda(spp.pcoa$points ~ ., data = as.data.frame(spa_cent)))$adj.r.squared   # O procedimento é o mesmo que o feito com os fatores ambientais. Sendo assim, nessa linha 
+>                                                                                               # de comando é criado um valor threshold de referencia para a seleçao de fatores. 
+> 
+> forward.sel(spp.pcoa$points, spa_cent, adjR2thresh = spa_R2a, alpha = 0.05)   # E aqui é executada a seleçao de variaveis para o conjunto de fatores espaciais lineares (X e Y = longitude e latitude)
+Testing variable 1
+Testing variable 2
+  variables order        R2     R2Cum  AdjR2Cum        F  pval
+1         X     1 0.1231560 0.1231560 0.1048884 6.741778 0.001
+2         Y     2 0.0831255 0.2062815 0.1725062 4.922272 0.001
+>                                                                               # Sim, é para rodar para o conjunto de apeans 2 fatores sim... pelo menos e isso que recomenda o livro 
+>                                                                               # do Borcard et al. (2011 - numerical ecology with R). Acabaram sendo selecionados os dois fatores (X e Y) mesmo.
+> 
+> 
+> spa.dist<-dist(spa_cent)                                    # Depois de lidar com os fatores espaciais lineares, damos inicio nessa linha de codigo aqui a
+>                                                             # modelar os fatores espaciais refinados (distance based moran eigenvector maps) e a respectiva rotina para
+>                                                             # selecionar aqueles que ficarão nas análises finais. Essa linha de comando aqui cria uma matriz de distancia
+>                                                             # entre as unidade amostrais com base nos fatores espaciais lineares.
+> 
+> library(PCNM)   # aqui chamamos/abrimos o pacote que permite rodar a pcnm (que é a analise que determina os fatores espaciais lineares)
+> 
+> spa.PCNM<-PCNM(spa.dist, dbMEM=T, moran=T, all=TRUE)    # depois de aberto o pacote, criamos um objeto com o resultado da pcnm rodada nessa linha de comando usando a matriz
+Truncation level = 0.1555574 
+Time to compute PCNMs = 4.630000  sec 
+>                                                         # de distancia criada acima.
+> 
+> select<-which(spa.PCNM$Moran_I$Positive)   # seleciona os fatores espaciais refinados (dbMeMs) positivos
+> PCNMs<-as.data.frame(spa.PCNM$vectors)[,select] # cria um objeto/matriz com fatores espaciais refinados que sera submetida a seguir ao procedimento de seleçao de variaveis
+> 
+> 
+> PCNM.rda<-capscale(spp.t ~ ., distance="horn", data = PCNMs)   # como feito para os fatores espaciais lineares, primeiro rodamos uma dbRDA para checar se o modelo é significativo 
+> 
+> anova.cca(PCNM.rda)    # aqui checamos se o modelo é significativo. Como é, damos continuidade a rotina.
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ V1 + V2, data = PCNMs, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model     2   3.5271 5.6437  0.001 ***
+Residual 47  14.6867                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> PCNM_R2a<-RsquareAdj(rda(spp.pcoa$points ~ ., data = PCNMs))$adj.r.squared      # aqui é a criaçao do threshold usado na seleçao de fatores espaciais refinados. mesma lógica que descrita mais acima
+> 
+> forward.sel(spp.pcoa$points, PCNMs, adjR2thresh=PCNM_R2a, alpha=0.05)   # seleçao dos fatores espaciais refinados que serão mantidos nas análises
+Testing variable 1
+Testing variable 2
+Procedure stopped (alpha criteria): pvalue for variable 2 is 0.281000 (superior to 0.050000)
+  variables order        R2     R2Cum  AdjR2Cum        F  pval
+1        V1     1 0.1212304 0.1212304 0.1029227 6.621827 0.001
+> 
+> PCNM_FIM<-as.data.frame(cbind(PCNMs[,1]))   # criaçao do objeto/matriz (que nesse caso é uma coluna só mesmo..) com o fator espacial refinado 
+> 
+> colnames(PCNM_FIM)<-c("PCNM_1")   # nomeaçao da coluna da matriz criada na linha de codigo acima
+> 
+> rownames(PCNM_FIM)<-rownames(spa_cent) # nomeaçao das linhas da matriz criada duas linhas de comando acima  
+> 
+> 
+> 
+> varpart(spp.pcoa$points, envP_FIM, spa_cent, PCNM_FIM)   # aqui é a linha de comando com a partiçao de variancia final usando a matriz de spp segundo a ordenaçao PCoA,
+
+Partition of variation in RDA
+
+Call: varpart(Y = spp.pcoa$points, X = envP_FIM, spa_cent, PCNM_FIM)
+
+Explanatory tables:
+X1:  envP_FIM
+X2:  spa_cent
+X3:  PCNM_FIM 
+
+No. of explanatory tables: 3 
+Total variation (SS): 85.88 
+            Variance: 1.7526 
+No. of observations: 50 
+
+Partition table:
+                      Df R.square Adj.R.square Testable
+[a+d+f+g] = X1        11  0.43287      0.26870     TRUE
+[b+d+e+g] = X2         2  0.20628      0.17251     TRUE
+[c+e+f+g] = X3         1  0.12123      0.10292     TRUE
+[a+b+d+e+f+g] = X1+X2 13  0.53214      0.36319     TRUE
+[a+c+d+e+f+g] = X1+X3 12  0.48514      0.31816     TRUE
+[b+c+d+e+f+g] = X2+X3  3  0.23080      0.18064     TRUE
+[a+b+c+d+e+f+g] = All 14  0.55079      0.37110     TRUE
+Individual fractions                                   
+[a] = X1 | X2+X3      11               0.19046     TRUE
+[b] = X2 | X1+X3       2               0.05294     TRUE
+[c] = X3 | X1+X2       1               0.00791     TRUE
+[d]                    0               0.02478    FALSE
+[e]                    0               0.04155    FALSE
+[f]                    0               0.00022    FALSE
+[g]                    0               0.05324    FALSE
+[h] = Residuals                        0.62890    FALSE
+Controlling 1 table X                                  
+[a+d] = X1 | X3       11               0.21524     TRUE
+[a+f] = X1 | X2       11               0.19068     TRUE
+[b+d] = X2 | X3        2               0.07771     TRUE
+[b+e] = X2 | X1        2               0.09449     TRUE
+[c+e] = X3 | X1        1               0.04946     TRUE
+[c+f] = X3 | X2        1               0.00813     TRUE
+---
+Use function 'rda' to test significance of fractions of interest
+>                                                          # e cada um dos conjuntos de dados preditores criados ao longo das linhas de código acima. 
+> 
+> 
+> fts.exp<-as.data.frame(cbind(envP_FIM, spa_cent, PCNM_FIM))   # aqui crio um objeto que é uma matriz juntando todos os fatores preditores. Faço isso para rodar as linhas de 
+>                                                               # código a seguir, onde é testada significancia do modelo inteiro, dos termos, dos eixos e das 
+>                                                               # partições (step 1a, step 1b, step 1c, ..., step 2c - da uma olhada na tabela do arquivo word que passei na primeira
+>                                                               # leva de resultados que se chama partição_RDA que tem os "steps"). 
+> 
+> 
+> anova.cca(capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                            + X + Y + PCNM_1, distance= "horn", fts.exp), model="direct")                 # essas duas linhas de código (poderia ser uma so, pus em duas para 
+Permutation test for capscale under direct model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + X + Y + PCNM_1, data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model    14  12.4770 5.4372  0.001 ***
+Residual 35   5.7368                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+>                                                                                                          # facilitar a visualizaçao) testam a significancia do modelo completo
+> 
+> summary(capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`       # Essas duas linhas de código são para pedir os resultados gerais da db_RDA
++                          + X + Y + PCNM_1, distance= "horn", fts.exp))                                   # Eu uso para olhar o escores dos preditores nos eixos da db-RDA
+
+Call:
+capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt +      `Elev^2` + `N^2` + `AF^2` + `K^2` + X + Y + PCNM_1, data = fts.exp,      distance = "horn") 
+
+Partitioning of squared Horn distance:
+              Inertia Proportion
+Total          18.214      1.000
+Constrained    12.477      0.685
+Unconstrained   5.737      0.315
+
+Eigenvalues, and their contribution to the squared Horn distance 
+
+Importance of components:
+                        CAP1   CAP2    CAP3    CAP4    CAP5    CAP6   CAP7    CAP8    CAP9
+Eigenvalue            4.2454 3.0926 1.59813 1.54797 1.35759 0.39209 0.1238 0.06163 0.04182
+Proportion Explained  0.2331 0.1698 0.08774 0.08499 0.07454 0.02153 0.0068 0.00338 0.00230
+Cumulative Proportion 0.2331 0.4029 0.49062 0.57561 0.65015 0.67167 0.6785 0.68185 0.68415
+                        CAP10    CAP11     CAP12   MDS1    MDS2    MDS3    MDS4    MDS5
+Eigenvalue            0.01339 0.002512 0.0001033 2.2053 1.18296 0.65797 0.44868 0.40875
+Proportion Explained  0.00074 0.000140 0.0000100 0.1211 0.06495 0.03612 0.02463 0.02244
+Cumulative Proportion 0.68488 0.685020 0.6850300 0.8061 0.87106 0.90718 0.93181 0.95425
+                         MDS6    MDS7    MDS8    MDS9   MDS10   MDS11  MDS12
+Eigenvalue            0.29452 0.18797 0.17514 0.08728 0.07061 0.01398 0.0037
+Proportion Explained  0.01617 0.01032 0.00962 0.00479 0.00388 0.00077 0.0002
+Cumulative Proportion 0.97042 0.98075 0.99036 0.99515 0.99903 0.99980 1.0000
+
+Accumulated constrained eigenvalues
+Importance of components:
+                        CAP1   CAP2   CAP3   CAP4   CAP5    CAP6    CAP7    CAP8    CAP9
+Eigenvalue            4.2454 3.0926 1.5981 1.5480 1.3576 0.39209 0.12379 0.06163 0.04182
+Proportion Explained  0.3403 0.2479 0.1281 0.1241 0.1088 0.03143 0.00992 0.00494 0.00335
+Cumulative Proportion 0.3403 0.5881 0.7162 0.8403 0.9491 0.98050 0.99043 0.99537 0.99872
+                        CAP10    CAP11     CAP12
+Eigenvalue            0.01339 0.002512 0.0001033
+Proportion Explained  0.00107 0.000200 0.0000100
+Cumulative Proportion 0.99979 0.999990 1.0000000
+
+Scaling 2 for species and site scores
+* Species are scaled proportional to eigenvalues
+* Sites are unscaled: weighted dispersion equal on all dimensions
+* General scaling constant of scores:  5.235986 
+
+
+Species scores
+
+         CAP1      CAP2     CAP3     CAP4      CAP5      CAP6
+acul  0.11542 -0.008637  0.01142 -0.11540 -0.024589  0.002493
+cary  0.09956  0.150633  0.01124 -0.12509  0.055135  0.648924
+edul -1.90271 -1.777580 -0.05033 -0.24059 -0.003099  0.047973
+eleg  0.00530  0.194157  0.19657 -0.01486 -0.128866  0.198266
+fisc  0.17766 -0.016916  0.73849  0.85715 -0.655445 -0.144708
+kuhl  0.15360  0.048088  0.10462  0.13989 -0.111335  0.057913
+pohl -0.39904  1.192767  0.28706 -1.02956 -0.184674 -0.321285
+scho  1.84814 -0.537949 -0.47534 -0.47271 -0.136768 -0.230396
+trin  0.05540 -0.027274  0.01179 -0.02464 -0.023343  0.022325
+vulg  0.13563 -0.091512  0.03436 -0.03626 -0.060507  0.021022
+wedd  0.20978  0.119912  0.45124  0.33612  1.377102 -0.224631
+witt -0.49874  0.754310 -1.32111  0.72595 -0.103612 -0.077896
+
+
+Site scores (weighted sums of species scores)
+
+          CAP1     CAP2     CAP3     CAP4     CAP5     CAP6
+RO1   -0.98757  0.30562  0.41274 -1.30387 -0.18743 -1.02891
+RO2   -0.16361  1.90435  0.73034 -1.35405 -0.32765 -0.42953
+RO3   -0.22439  1.91694  0.64466 -1.37438 -0.17868 -1.15940
+RO4   -0.98757  0.30562  0.41274 -1.30387 -0.18743 -1.02891
+CP1    0.32166  0.72544  0.94519  1.14462  2.94376 -0.40091
+CP2    0.32166  0.72544  0.94519  1.14462  2.94376 -0.40091
+CP3    0.73770  0.51769  0.63145  0.82365  2.67095 -0.69837
+CP4    0.24165  0.92617  0.59253  0.25662  0.08602  5.96977
+CP5   -0.82537  0.66945  0.46100 -1.42891 -0.15305  0.87836
+CP6   -0.18524  1.91605  0.85983 -1.19832 -0.41349  0.09328
+RE1    1.36872  0.26572 -0.49307 -0.93258 -0.25040 -0.87929
+RE2   -0.42477 -0.82076 -0.04197 -0.44448 -0.13847  0.52209
+RE3    0.07978 -0.99551 -0.43510 -0.62075 -0.08593 -0.29776
+RE4    0.35727 -0.75485 -0.41532 -0.66208 -0.12589 -0.25768
+RE5   -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+RE6    1.50255 -0.05695 -0.47595 -0.10859 -0.30819 -0.14781
+RE7    1.49376 -0.03318 -0.60466 -0.46043 -0.10237  1.23686
+RE8   -0.14723 -0.06548  0.23535  0.27549  0.06364  0.95581
+RE9    1.46457  0.01440 -0.54561 -0.46208 -0.12459  1.63196
+RE10   0.93073 -0.65190 -0.57143 -0.53937 -0.15690 -0.22988
+RE11   1.34317  0.35473 -0.43231 -1.07164 -0.29999 -1.04201
+RE12   1.50602 -0.02028 -0.02660  0.15466 -0.76309 -0.17030
+RE13   0.27201  0.62426  1.77720  2.11020 -1.45885 -0.06086
+RE14   0.36978 -0.08558  1.07062  0.80372 -1.30101  0.66631
+RE15   0.26839  0.55352  1.67364  2.17346 -1.37599 -0.58704
+RE16   0.34442  0.59758  1.52387  2.04953 -1.27471 -0.07029
+RE17   1.51335 -0.08297 -0.44353 -0.16304  0.64656 -0.66239
+RE18   1.51056 -0.01840 -0.20189  0.01970  1.35403 -0.91114
+RE19   0.98055 -0.58641 -0.01412  0.08378 -0.76301 -0.69744
+RE20   1.09346 -0.49881 -0.64536 -0.46656 -0.08103 -0.35955
+CPp1  -0.80456 -0.75143  0.84610  0.75982 -0.77178 -0.46386
+CPp2  -0.52070 -0.90873 -0.16676 -0.37039  0.02219 -0.03187
+PRI1  -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+PRI2  -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+PRI3  -0.88329 -0.79200  0.44390  0.29605 -0.32155 -0.12413
+PRI4  -0.52067 -0.90873 -0.16677 -0.37040  0.02218 -0.03189
+PRI5   0.30620 -0.97473 -0.50975 -0.64982 -0.09290 -0.34168
+PRI6  -0.52068 -0.90873 -0.16677 -0.37040  0.02218 -0.03189
+CAMP1 -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+MZ1   -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+RF1   -0.08189 -0.98506 -0.37084 -0.57195 -0.06839 -0.24746
+RF2   -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+RF3   -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+RF4   -0.93929 -0.80676  0.05829 -0.12224  0.14944  0.28537
+RF5   -0.88329 -0.79200  0.44392  0.29607 -0.32157 -0.12415
+RF6   -1.12301  0.14834 -1.12771  0.07477 -0.17113 -0.58234
+RF7   -0.38589  1.98016 -1.44368  0.41763 -0.19296 -0.79264
+RF8   -0.22132  1.29954 -2.07186  1.78208  0.06156  0.23612
+RF9   -0.70128  1.09602 -1.67371  0.75734 -0.09546 -0.41740
+RF10  -0.22132  1.29954 -2.07186  1.78208  0.06156  0.23612
+
+
+Site constraints (linear combinations of constraining variables)
+
+          CAP1      CAP2     CAP3     CAP4     CAP5     CAP6
+RO1   -0.90406  0.255355  0.34449 -1.48319  0.11841 -0.74350
+RO2   -0.46703  1.845354  1.10669 -0.55470 -0.01212 -0.92181
+RO3   -0.10606  1.622447  0.38469 -1.28417 -0.31759 -0.54895
+RO4   -0.36422  1.402562  0.75873 -0.93309  0.10811 -0.76013
+CP1    0.14640  0.104847  0.37736  0.30028  2.84478 -0.16289
+CP2   -0.14349  0.235238  0.80985  0.43037  2.29101 -0.35618
+CP3    0.22831  0.213134  1.16830  0.80959  1.85170 -0.13658
+CP4    0.15430  0.943593  0.12150 -0.03036  0.60825  3.34404
+CP5   -0.20418  1.241598  0.34695 -1.52728 -0.21174  1.31729
+CP6   -0.70381  1.163391  0.82103 -1.45438 -0.56949  0.15276
+RE1    1.22829  0.383297 -0.45250 -0.49866  0.26942 -0.12003
+RE2    0.28874 -0.229394 -0.15537  0.48154  0.03095  0.50957
+RE3    0.53842 -0.298571 -0.40267 -0.16346  0.27773  0.51864
+RE4    0.21251 -0.454538 -0.10282 -0.21614  0.30756  0.19232
+RE5    0.12377 -0.302705 -0.29723 -0.17992 -0.10024 -0.11844
+RE6    0.86060 -0.204033 -0.37194 -0.36397 -0.15750  0.57183
+RE7    1.15002 -0.535076 -0.38989 -1.03490 -0.23793  0.55842
+RE8    0.40834 -0.420206  0.45841 -0.10654 -0.30243  0.32272
+RE9    1.04027 -0.331145 -0.13247 -0.52547 -0.37745  0.20917
+RE10   0.54414 -0.500128 -0.40844 -0.31634 -0.49488  0.03038
+RE11   0.86948 -0.308015 -0.06311 -0.41308 -0.70381 -0.17099
+RE12   0.61032 -0.459993 -0.16561 -0.17473 -0.83905  0.13442
+RE13   0.16800  0.077154  1.34166  1.43553 -1.29001  0.19808
+RE14   0.31876 -0.049192  0.71066  0.70022 -0.86031 -1.09516
+RE15   0.33442  0.143676  1.42229  1.67198 -0.94889  0.04493
+RE16   0.76494  0.577612  1.21197  1.43889 -0.97591  0.07871
+RE17   1.79778  0.064211 -0.53435  0.09035  0.84831 -1.08145
+RE18   1.26406  0.066513  0.02168  0.05016 -0.40610 -0.23657
+RE19   1.26008 -0.240088 -0.39374 -0.12447  0.04125 -0.82646
+RE20   1.09792 -0.048289 -0.30583 -0.13185 -0.48307 -0.79608
+CPp1  -1.01186 -0.860617  0.13889 -0.56832 -0.69016 -0.66609
+CPp2  -1.01367 -0.698003  0.72315  0.42250 -0.15536  0.67937
+PRI1  -1.10812 -0.673249  0.26608  0.19100 -0.28354  1.11232
+PRI2  -0.39537 -0.779778 -0.02838 -0.03181  0.05411  0.11495
+PRI3  -0.22422 -0.839864  0.10802 -0.20686  0.35187 -0.85865
+PRI4  -0.44716 -0.755470 -0.03094 -0.24717  0.01208  0.33842
+PRI5   0.06559 -0.959240 -0.03794  0.16611  0.85527  0.43639
+PRI6  -0.53885 -0.934040  0.27493  0.06886  0.39031 -0.30840
+CAMP1  0.10320 -0.495046 -0.37913 -0.12702  0.27196  0.95001
+MZ1   -1.08301 -1.208763  0.44020 -0.37194 -0.33605  0.01783
+RF1   -0.46249 -0.291483 -0.57845 -0.25018 -0.05294 -0.05659
+RF2   -0.59179 -0.453511 -0.59438 -0.03175  0.42788 -0.50019
+RF3   -1.25312 -0.769934  0.10235  0.12626  0.07140 -0.94720
+RF4   -0.61722 -0.169273 -0.01867  0.53638 -0.10549  0.23235
+RF5   -0.75617 -0.087054  0.28845  0.70511 -0.47254  0.12943
+RF6   -0.83158  0.003043 -1.17132  0.20500  0.04028 -0.48982
+RF7   -0.59763  0.658493 -1.63615  0.40870 -0.28207  0.49335
+RF8   -0.68951  0.449484 -2.15113  0.02268 -0.21621 -0.03366
+RF9   -0.76726  0.995364 -1.47456  1.04945 -0.23286 -0.93191
+RF10  -0.29680  1.910330 -1.47131  2.04075  0.04309  0.18004
+
+
+Biplot scores for constraining variables
+
+             CAP1     CAP2     CAP3     CAP4     CAP5     CAP6
+Elev     -0.41527 -0.32492 -0.48716  0.46798 -0.28196 -0.09792
+P        -0.09425  0.23706  0.04205  0.72695 -0.19809 -0.05925
+H_Al     -0.40820  0.19770 -0.02402 -0.19597 -0.08191  0.58313
+K         0.01450  0.34120 -0.04999 -0.12214 -0.21143  0.30081
+N         0.05976 -0.21131  0.30311  0.02979 -0.22961  0.23848
+Sol      -0.14444 -0.01700  0.41724 -0.44371  0.43113  0.10058
+Silt      0.04262  0.29082  0.19261 -0.44034 -0.28705 -0.15004
+`Elev^2` -0.54718  0.64227 -0.29914 -0.03535  0.36052 -0.01922
+`N^2`    -0.48905 -0.16473 -0.04313 -0.05009  0.02701 -0.06874
+`AF^2`    0.24624  0.17491  0.16522  0.06767  0.36559 -0.40674
+`K^2`    -0.17686  0.19469  0.28417 -0.38399  0.31145  0.25713
+X         0.83354  0.02275  0.21329 -0.07658 -0.24181 -0.07945
+Y         0.72801 -0.38750 -0.05303  0.25164 -0.43293 -0.07404
+PCNM_1    0.81975 -0.16556  0.05740  0.08523 -0.35367 -0.06214
+
+> 
+> anova.cca(capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`     # Linhas de código para pedir a significancia dos termos que compoem o modelo
++                           + X + Y + PCNM_1, distance= "horn", fts.exp), model="direct" , by="terms")
+Permutation test for capscale under direct model
+Terms added sequentially (first to last)
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + X + Y + PCNM_1, data = fts.exp, distance = "horn")
+         Df Variance       F Pr(>F)    
+Elev      1   1.8941 11.5556  0.001 ***
+P         1   1.1078  6.7585  0.001 ***
+H_Al      1   1.0538  6.4290  0.001 ***
+K         1   0.9849  6.0086  0.001 ***
+N         1   0.8863  5.4071  0.001 ***
+Sol       1   0.6314  3.8519  0.003 ** 
+Silt      1   0.6064  3.6999  0.004 ** 
+`Elev^2`  1   1.4734  8.9891  0.001 ***
+`N^2`     1   0.3561  2.1722  0.051 .  
+`AF^2`    1   0.5297  3.2318  0.005 ** 
+`K^2`     1   0.2949  1.7994  0.102    
+X         1   1.2825  7.8244  0.001 ***
+Y         1   1.0654  6.4996  0.002 ** 
+PCNM_1    1   0.3105  1.8941  0.105    
+Residual 35   5.7368                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> anova.cca(capscale(spp.t ~ Silt +  `Alt^2` + AG + `SB^2` + SOL + V + `Arg^2` + `K^2`                     # linhas de codigo para pedir a significancia dos eixos que compoem o modelo
++                           + X + Y + PCNM_1, distance= "horn", fts.exp), model="direct" , by="axis")
+Error in eval(expr, envir, enclos) : object 'Alt^2' not found
+> 
+> 
+> 
+> 
+> 
+> #STEP 1a
+> pure_E<-capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                         + Condition (X + Y + PCNM_1), distance= "horn", fts.exp)                              # linhas de código para rodar o modelo referente a contribuiçao pura do ambiente
+> 
+> anova.cca(pure_E, step= 10000, perm= 10000, model="reduced")                                                  # teste do modelo que define a contribuiçao pura do ambiente
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + Condition(X + Y + PCNM_1), data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model    11   6.7921 3.7671  0.001 ***
+Residual 35   5.7368                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                                 + Condition (X + Y + PCNM_1), fts.exp))                                       # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao pura do ambiente
+$r.squared
+[1] 0.3199826
+
+$adj.r.squared
+[1] 0.1904618
+
+> 
+> 
+> #STEP 1b
+> pure_S.l<-capscale(spp.t ~ X + Y + Condition (Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                                               + PCNM_1), distance= "horn", fts.exp)                           # linhas de código para rodar o modelo referente a contribuiçao pura do espaço linear
+> 
+> anova.cca(pure_S.l, step= 10000, perm= 10000, model= "reduced")                                               # teste do modelo que define a contribuiçao pura do espaço linear
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ X + Y + Condition(Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + PCNM_1), data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model     2   1.4243 4.3448  0.001 ***
+Residual 35   5.7368                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ X + Y + Condition (Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                                                     + PCNM_1), fts.exp))                                      # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao pura do espaço linear
+$r.squared
+[1] 0.06564434
+
+$adj.r.squared
+[1] 0.05293977
+
+> 
+> 
+> 
+> #STEP 1c
+> pure_S.p<-capscale(spp.t ~  PCNM_1 + Condition (Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                                                 + X + Y), distance= "horn", fts.exp)                          # linhas de código para rodar o modelo referente a contribuiçao pura do espaço refinado
+> 
+> anova.cca(pure_S.p, step= 100000, perm= 100000, model="reduced")                                              # teste do modelo que define a contribuiçao pura do espaço refinado
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ PCNM_1 + Condition(Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + X + Y), data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)
+Model     1   0.3105 1.8941  0.104
+Residual 35   5.7368              
+> 
+> RsquareAdj(rda(spp.pcoa$points ~  PCNM_1 + Condition (Silt +  `Alt^2` + AG + `SB^2` + SOL + V + `Arg^2` + `K^2`  
++                                                       + X + Y), fts.exp))                                     # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao pura do espaço refinado
+Error in eval(expr, envir, enclos) : object 'Alt^2' not found
+>  
+> 
+> 
+> #STEP 2a
+> S.l_j_E<-capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                          + X + Y + Condition (PCNM_1), distance= "horn", fts.exp)         # linhas de código para rodar o modelo referente a contribuiçao do ambiente junto do espaço linear
+> 
+> anova.cca(S.l_j_E, step=1000, perm= 1000, model="reduced")                                # teste do modelo que define a contribuiçao do ambiente junto do espaço linear
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + X + Y + Condition(PCNM_1), data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model    13   9.3444 4.3853  0.001 ***
+Residual 35   5.7368                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`  
++                                 + X + Y + Condition (PCNM_1), fts.exp))                   # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao do ambiente junto do espaço linear
+$r.squared
+[1] 0.4295549
+
+$adj.r.squared
+[1] 0.2681767
+
+> 
+> 
+> 
+> #STEP 2b
+> S.l_j_S.p<-capscale(spp.t ~   X + Y + PCNM_1 + Condition (Elev +  P + H_Al + K + N + Sol + Silt + 
++                                                          `Elev^2` + `N^2` + `AF^2` + `K^2`), distance= "horn", fts.exp)        # linhas de código para rodar o modelo referente a contribuiçao do espaço linear junto ao espaço refinado
+> 
+> anova.cca(S.l_j_S.p, step= 1000, perm= 1000, model= "reduced")                                # teste do modelo que define a contribuiçao do espaço linear junto ao espaço refinado
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ X + Y + PCNM_1 + Condition(Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`), data = fts.exp, distance = "horn")
+         Df Variance     F Pr(>F)    
+Model     3   2.6583 5.406  0.001 ***
+Residual 35   5.7368                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> RsquareAdj(rda(spp.pcoa$points ~   X + Y + PCNM_1 + Condition (Elev +  P + H_Al + K + N + Sol + Silt + 
++                                                               `Elev^2` + `N^2` + `AF^2` + `K^2`), fts.exp))                    # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao do espaço linear junto ao espaço refinado
+$r.squared
+[1] 0.1179196
+
+$adj.r.squared
+[1] 0.1024042
+
+> 
+> 
+> 
+> #STEP 2c
+> E_j_S.p<-capscale(spp.t ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + 
++                           PCNM_1 + Condition (X + Y), distance= "horn", fts.exp)                                # linhas de código para rodar o modelo referente a contribuiçao do ambiente junto ao espaço refinado
+> 
+> anova.cca(E_j_S.p, step= 1000, perm= 1000, model="reduced")                                # teste do modelo que define a contribuiçao do ambiente junto ao espaço refinado
+Permutation test for capscale under reduced model
+Permutation: free
+Number of permutations: 999
+
+Model: capscale(formula = spp.t ~ Elev + P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2` + PCNM_1 + Condition(X + Y), data = fts.exp, distance = "horn")
+         Df Variance      F Pr(>F)    
+Model    12   7.2761 3.6992  0.001 ***
+Residual 35   5.7368                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> RsquareAdj(rda(spp.pcoa$points ~ Elev +  P + H_Al + K + N + Sol + Silt + `Elev^2` + `N^2` + `AF^2` + `K^2`+ 
++                                  PCNM_1 + Condition (X + Y), fts.exp))                     # linhas de codigo para definir o R2 ajustado do modelo referente a contribuiçao do ambiente junto ao espaço refinado
+$r.squared
+[1] 0.3445038
+
+$adj.r.squared
+[1] 0.1985932
+
+> 
